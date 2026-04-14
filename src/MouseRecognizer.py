@@ -12,21 +12,21 @@ class Recognizer:
     def is_finger_raised(self, tip, pip, mcp, landmarks):
         return landmarks[tip][1] < landmarks[pip][1] < landmarks[mcp][1]
 
+    def is_finger_curved(self, tip, pip, mcp, landmarks):
+        return landmarks[tip][1] > landmarks[pip][1] > landmarks[mcp][1]
+
     def is_holding_mouse(self, landmarks):
-        index_fold = self.distance(8, 5, landmarks)
-        middle_fold = self.distance(12, 9, landmarks)
+        ring_down = self.is_finger_curved(16, 15,13, landmarks)
+        pinky_down = self.is_finger_curved(20, 19, 17, landmarks)
+        thumb_fold = self.distance(4, 1, landmarks)
         ring_fold = self.distance(16, 13, landmarks)
+        pinky_fold = self.distance(20, 17, landmarks)
 
-        return index_fold < 0.15 and middle_fold < 0.15 and ring_fold < 0.15
+        return (ring_down and pinky_down and thumb_fold < 0.15
+                and ring_fold < 0.15 and pinky_fold < 0.15)
 
-    def get_vertical_movement(self, landmarks):
-        if self.prev_landmarks is None:
-            return 0
-        return landmarks[8][1] - self.prev_landmarks[8][1]
-
-    def detect_tap(self, tip, thumb, landmarks):
-        dist = self.distance(tip, thumb, landmarks)
-        return dist < 0.04
+    def get_vertical_movement(self, tip, landmarks):
+        return landmarks[tip][1] - self.prev_landmarks[tip][1]
 
     def get_gesture(self, landmarks):
         index_raised = self.is_finger_raised(8, 6, 5, landmarks)
@@ -36,22 +36,20 @@ class Recognizer:
 
         gesture = "NONE"
 
+        if(prev_gesture == "LEFT_UP"):
+            if()
+            gesture = "SCROLL"
         if self.is_holding_mouse(landmarks):
             gesture = "MOVE"
         elif index_raised and not middle_raised:
-            if self.detect_tap(8, 4, landmarks):
-                gesture = "RIGHT_CLICK"
-            elif abs(vertical_move) > 0.01:
-                gesture = "SCROLL"
+            gesture = "RIGHT_UP"
         elif middle_raised and not index_raised:
-            if self.detect_tap(12, 4, landmarks):
-                gesture = "LEFT_CLICK"
-            elif abs(vertical_move) > 0.01:
-                gesture = "SCROLL"
+            gesture = "LEFT_UP"
         elif index_raised and middle_raised:
             if abs(vertical_move) > 0.01:
                 gesture = "SCROLL"
 
+        print(gesture)
         self.prev_landmarks = landmarks
         self.prev_gesture = gesture
 
