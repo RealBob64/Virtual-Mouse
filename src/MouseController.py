@@ -55,9 +55,9 @@ class Controller:
             x, y = self.map_to_screen((px, py))
             x, y = self.smooth_move(x, y)
             pyautogui.moveTo(x, y)
-        elif gesture == "LEFT_CLICK":
+        elif gesture == "LEFT_DOWN":
             pyautogui.click(button='left')
-        elif gesture == "RIGHT_CLICK":
+        elif gesture == "RIGHT_DOWN":
             pyautogui.click(button='right')
         elif gesture == "SCROLL":
             direction = -1 if landmarks[8][1] < 0.5 else 1
